@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"golang-oauth2/utils"
 	"io/ioutil"
 	"net/http"
 
@@ -18,19 +19,25 @@ var (
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}
-	oauthStateString = "thisisrandom"
 )
 
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 
-	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	// generating oauth state and cookie
+	oauthState := utils.GenerateOauthStateAndCookie(w)
+
+	// oauth state is passed to AuthCodeURL, which is a token to protect user from CSRF attacks.
+	url := googleOauthConfig.AuthCodeURL(oauthState)
 	fmt.Println(url)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func handleCallBackFromGoogle(w http.ResponseWriter, r *http.Request) {
 
-	if r.FormValue("state") != oauthStateString {
+	// get oauth state from cookie
+	oauthState, _ := r.Cookie("oauthstate")
+
+	if r.FormValue("state") != oauthState.Value {
 		fmt.Println("state is not valid")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
