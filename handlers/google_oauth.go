@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/skip2/go-qrcode"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -66,4 +67,11 @@ func handleCallBackFromGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "ParsedResponse: "+string(response)+"\n")
+
+	err = qrcode.WriteFile(string(response), qrcode.Medium, 256, "qrcode_image.png")
+
+	if err != nil {
+		fmt.Printf("unable to create QR Code: %v", err)
+	}
+
 }

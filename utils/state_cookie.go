@@ -8,7 +8,7 @@ import (
 )
 
 /*
-Generating oauth state string and sending it to http response header.
+Generating oauth state string and binding it with http response header.
 */
 func GenerateOauthStateAndCookie(w http.ResponseWriter) string {
 
